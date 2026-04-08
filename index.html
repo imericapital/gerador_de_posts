@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerador de Posts — Imeri Capital</title>
+  <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --main:   #73765C;
+      --light:  #F1F4F8;
+      --white:  #FFFFFF;
+      --text:   #3a3c2e;
+      --muted:  #8a8c7a;
+      --border: #dde0ea;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Red Hat Display', sans-serif;
+      background: var(--light);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: #5a5d47;
+      padding: 0 48px;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .header-pill {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--light);
+      border: 1px solid rgba(241,244,248,.35);
+      padding: 5px 14px;
+      border-radius: 2px;
+    }
+
+    /* ── TOP BAR ── */
+    .top-bar { height: 3px; background: var(--light); flex-shrink: 0; }
+
+    /* ── MAIN ── */
+    main {
+      flex: 1;
+      max-width: 720px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 56px 24px 80px;
+    }
+
+    .page-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #828282;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 30px;
+      font-weight: 700;
+      color: #828282;
+      line-height: 1.2;
+      margin-bottom: 10px;
+    }
+
+    .page-desc {
+      font-size: 14px;
+      font-weight: 400;
+      color: #828282;
+      line-height: 1.7;
+      margin-bottom: 40px;
+      max-width: 560px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+    }
+
+    /* ── FORM ── */
+    #formWrap { padding: 40px; }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    .form-group { margin-bottom: 26px; }
+    .form-group:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    label .req { color: var(--main); margin-left: 2px; }
+
+    select,
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 11px 14px;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      font-family: 'Red Hat Display', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text);
+      outline: none;
+      transition: border-color .18s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7' viewBox='0 0 11 7'%3E%3Cpath d='M1 1l4.5 4.5L10 1' stroke='%2373765C' stroke-width='1.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 38px;
+      cursor: pointer;
+    }
+
+    select:focus, input:focus, textarea:focus {
+      border-color: var(--main);
+      background: var(--white);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 88px;
+      line-height: 1.65;
+    }
+
+    .form-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 28px 0;
+    }
+
+    /* ── SUBMIT BUTTON ── */
+    .btn-submit {
+      width: 100%;
+      padding: 15px;
+      background: var(--main);
+      color: var(--white);
+      border: none;
+      border-radius: 2px;
+      font-family: 'Red Hat Display', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .18s, opacity .18s;
+      margin-top: 6px;
+    }
+    .btn-submit:hover:not(:disabled) { background: #5a5d47; }
+    .btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── ERROR ── */
+    .error-msg {
+      display: none;
+      margin-top: 14px;
+      padding: 13px 16px;
+      background: #f0f2f8;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.5;
+    }
+    .error-msg.show { display: block; }
+
+    /* ── LOADING ── */
+    #loadingWrap {
+      display: none;
+      padding: 64px 40px;
+      text-align: center;
+    }
+    #loadingWrap.show { display: block; }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid rgba(241,244,248,.25);
+      border-top-color: var(--main);
+      border-radius: 50%;
+      animation: spin .75s linear infinite;
+      margin: 0 auto 18px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: .8px;
+    }
+    .loading-sub {
+      font-size: 12px;
+      color: var(--border);
+      margin-top: 6px;
+    }
+
+    /* ── RESULT ── */
+    #resultCard {
+      display: none;
+      margin-top: 28px;
+    }
+    #resultCard.show { display: block; }
+
+    .result-header {
+      background: var(--main);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-radius: 3px 3px 0 0;
+    }
+    .result-header-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--light);
+    }
+    .result-badge {
+      background: var(--light);
+      color: var(--main);
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 2px;
+    }
+
+    .result-body { padding: 32px; }
+
+    #resultText {
+      font-size: 15px;
+      line-height: 1.85;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    #resultText .separator {
+      display: block;
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 20px 0 14px;
+    }
+    #resultText .fontes-line {
+      font-size: 12px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn-copy {
+      padding: 10px 22px;
+      background: var(--light);
+      color: var(--text);
+      border: none;
+      border-radius: 2px;
+      font-family: 'Red Hat Display', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .18s;
+    }
+    .btn-copy:hover { background: #e0e4ee; }
+
+    .btn-reset {
+      padding: 10px 22px;
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      font-family: 'Red Hat Display', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: border-color .18s;
+    }
+    .btn-reset:hover { border-color: var(--main); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: #5a5d47;
+      padding: 18px 48px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 400;
+      color: rgba(241,244,248,.55);
+      letter-spacing: .8px;
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 580px) {
+      header { padding: 0 20px; }
+      main { padding: 36px 16px 60px; }
+      .form-row { grid-template-columns: 1fr; gap: 0; }
+      #formWrap { padding: 28px 20px; }
+      h1 { font-size: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <span class="header-pill">Gerador de Posts</span>
+  </header>
+  <div class="top-bar"></div>
+
+  <main>
+    <p class="page-eyebrow">Conteúdo Editorial</p>
+    <h1>Gerador de Posts</h1>
+    <p class="page-desc">Preencha os campos abaixo para gerar um post editorial para as redes sociais da Imeri Capital. O conteúdo é gerado com base em pesquisa em tempo real e entregue para revisão humana.</p>
+
+    <!-- FORM CARD -->
+    <div class="card">
+      <div id="formWrap">
+        <form id="postForm" novalidate>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="subtipo">Tipo de post <span class="req">*</span></label>
+              <select id="subtipo" name="subtipo" required>
+                <option value="" disabled selected>Selecione</option>
+                <option value="noticia">Notícia</option>
+                <option value="setorial">Setorial</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="time">Time <span class="req">*</span></label>
+              <select id="time" name="time" required>
+                <option value="" disabled selected>Selecione</option>
+                <option value="T2">T2</option>
+                <option value="T3">T3</option>
+                <option value="T4">T4</option>
+                <option value="C1">C1</option>
+                <option value="C2">C2</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="tema">Tema</label>
+            <input type="text" id="tema" name="tema" placeholder="Ex: Cibersegurança, FIDC, M&A no agro…" />
+          </div>
+
+          <div class="form-divider"></div>
+
+          <div class="form-group">
+            <label for="observacoes">Observações</label>
+            <textarea id="observacoes" name="observacoes" placeholder="Orientações adicionais sobre a pesquisa ou o formato do post…"></textarea>
+          </div>
+
+          <button type="submit" class="btn-submit" id="submitBtn">Gerar Post</button>
+          <div class="error-msg" id="errorMsg"></div>
+
+        </form>
+      </div>
+
+      <!-- LOADING -->
+      <div id="loadingWrap">
+        <div class="spinner"></div>
+        <p class="loading-label">Pesquisando e gerando conteúdo…</p>
+        <p class="loading-sub">Isso pode levar até 2 minutos.</p>
+      </div>
+    </div>
+
+    <!-- RESULT -->
+    <div id="resultCard" class="card">
+      <div class="result-header">
+        <span class="result-header-label">Post Gerado</span>
+        <span class="result-badge">Aguarda Revisão</span>
+      </div>
+      <div class="result-body">
+        <div id="resultText"></div>
+        <div class="result-actions">
+          <button class="btn-copy" id="copyBtn" onclick="copyResult()">Copiar Texto</button>
+          <button class="btn-reset" onclick="resetForm()">Gerar Novo Post</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    Imeri Capital &mdash; Uso interno &nbsp;|&nbsp; Todo conteúdo requer revisão humana antes da publicação.
+  </footer>
+
+  <script>
+    const WEBHOOK_URL = 'https://n8n.srv1253489.hstgr.cloud/webhook/imeri-posts';
+
+    document.getElementById('postForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const subtipo     = document.getElementById('subtipo').value;
+      const time        = document.getElementById('time').value;
+      const tema        = document.getElementById('tema').value.trim();
+      const observacoes = document.getElementById('observacoes').value.trim();
+
+      if (!subtipo || !time) {
+        showError('Selecione o tipo de post e o time antes de continuar.');
+        return;
+      }
+
+      setLoading(true);
+      document.getElementById('errorMsg').classList.remove('show');
+      document.getElementById('resultCard').classList.remove('show');
+
+      try {
+        const res = await fetch(WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ subtipo, time, tema, observacoes }),
+          signal: AbortSignal.timeout(300000)
+        });
+
+        if (!res.ok) throw new Error('O servidor retornou um erro (' + res.status + ').');
+
+        const data = await res.json();
+        const raw = Array.isArray(data) ? (data[0]?.content ?? JSON.stringify(data[0])) : (data.content ?? JSON.stringify(data));
+
+        renderResult(raw);
+
+      } catch (err) {
+        setLoading(false);
+        showError('Não foi possível gerar o post. Verifique sua conexão e tente novamente.<br><small>' + err.message + '</small>');
+      }
+    });
+
+    function renderResult(text) {
+      setLoading(false);
+
+      const container = document.getElementById('resultText');
+      container.innerHTML = '';
+
+      const parts = text.split(/\n---\n/);
+      const mainText = parts[0] || text;
+      const fontesText = parts[1] ? parts[1].trim() : null;
+
+      const pre = document.createElement('span');
+      pre.style.whiteSpace = 'pre-wrap';
+      pre.textContent = mainText.trim();
+      container.appendChild(pre);
+
+      if (fontesText) {
+        const sep = document.createElement('hr');
+        sep.style.cssText = 'border:none;border-top:1px solid var(--border);margin:20px 0 14px';
+        container.appendChild(sep);
+
+        const f = document.createElement('span');
+        f.style.cssText = 'display:block;font-size:12px;color:var(--muted);font-style:italic;line-height:1.6';
+        f.textContent = fontesText;
+        container.appendChild(f);
+      }
+
+      document.getElementById('resultCard').classList.add('show');
+    }
+
+    function setLoading(on) {
+      document.getElementById('formWrap').style.display  = on ? 'none' : 'block';
+      document.getElementById('loadingWrap').classList.toggle('show', on);
+      document.getElementById('submitBtn').disabled = on;
+    }
+
+    function showError(msg) {
+      const el = document.getElementById('errorMsg');
+      el.innerHTML = msg;
+      el.classList.add('show');
+    }
+
+    function copyResult() {
+      const text = document.getElementById('resultText').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = 'Copiado!';
+        setTimeout(() => { btn.textContent = 'Copiar Texto'; }, 2200);
+      }).catch(() => {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      });
+    }
+
+    function resetForm() {
+      document.getElementById('postForm').reset();
+      document.getElementById('resultCard').classList.remove('show');
+      document.getElementById('errorMsg').classList.remove('show');
+      setLoading(false);
+    }
+  </script>
+</body>
+</html>
