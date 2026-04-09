@@ -364,7 +364,8 @@
               <select id="subtipo" name="subtipo" required>
                 <option value="" disabled selected>Selecione</option>
                 <option value="noticia">Notícia</option>
-                <option value="setorial">Setorial</option>
+                <option value="frases_comerciais">Frases Comerciais</option>
+                <option value="fatos_imeri">Fatos Imeri</option>
               </select>
             </div>
             <div class="form-group">
@@ -477,10 +478,19 @@
       const mainText = parts[0] || text;
       const fontesText = parts[1] ? parts[1].trim() : null;
 
-      const pre = document.createElement('span');
-      pre.style.whiteSpace = 'pre-wrap';
-      pre.textContent = mainText.trim();
-      container.appendChild(pre);
+      // Split by page markers (Página N: or Página N (...):)
+      const segments = mainText.split(/\n(?=Página \d)/);
+      segments.forEach((seg, i) => {
+        if (i > 0) {
+          const hr = document.createElement('hr');
+          hr.style.cssText = 'border:none;border-top:1px solid var(--border);margin:22px 0 16px';
+          container.appendChild(hr);
+        }
+        const span = document.createElement('span');
+        span.style.cssText = 'display:block;white-space:pre-wrap';
+        span.textContent = seg.trim();
+        container.appendChild(span);
+      });
 
       if (fontesText) {
         const sep = document.createElement('hr');
